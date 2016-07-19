@@ -43,8 +43,8 @@ class ControllerPaymentPayerwywallet extends Controller {
 
 		$payer->add_buyer_info($order_info['firstname'], $order_info['lastname'], $order_info['payment_address_1'], $order_info['payment_address_2'], $order_info['payment_postcode'], $order_info['payment_city'], $order_info['payment_iso_code_2'], $order_info['telephone'], '', /* phone work */ '', /* phone mobile */ $order_info['email'], '', /* organisation */ '', /* theOrgNr */ $order_info['customer_id'], $order_info['order_id'], '' /* theOptions */);
 
-		$this->load->model('checkout/coupon');
-		$this->load->model('checkout/voucher');
+		$this->load->model('total/coupon');
+		$this->load->model('total/voucher');
 
 		$i = 1;
 		$totalPrice = 0;

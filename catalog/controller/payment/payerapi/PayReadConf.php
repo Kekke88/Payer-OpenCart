@@ -1,3 +1,3 @@
 <?php
-	// Payer Configuration Placeholder
+    // Payer Configuration Placeholder
 ?>

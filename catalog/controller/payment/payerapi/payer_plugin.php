@@ -1,16 +1,16 @@
 <?php
 /*
-$Id: payer_plugin.php,v 1.1 2015/04/22 11:57:44 bihla Exp $
-$Header: /usr/local/cvsroot/startpaket/Modules/openCart/v2.x/catalog/controller/payment/payerapi/payer_plugin.php,v 1.1 2015/04/22 11:57:44 bihla Exp $
+$Id: payer_plugin.php,v 1.1 2015/04/22 11:58:55 bihla Exp $
+$Header: /usr/local/cvsroot/startpaket/API/PHP/payer_plugin.php,v 1.1 2015/04/22 11:58:55 bihla Exp $
 $Log: payer_plugin.php,v $
-Revision 1.1  2015/04/22 11:57:44  bihla
+Revision 1.1  2015/04/22 11:58:55  bihla
 rebuild of startpaket - COMPLETELY NEW STRUCTURE
 
-Revision 1.1  2015/04/22 11:16:31  bihla
+Revision 1.1  2015/04/22 11:16:23  bihla
 sharing startpaketINIT for the first time
 
-Revision 1.2  2015/04/22 08:31:12  maker
-*** empty log message ***
+Revision 1.14  2015/03/26 16:59:01  bihla
+small bug fixed
 
 Revision 1.13  2014/10/03 14:14:17  bihla
 adding woocommerce form fields
@@ -58,8 +58,8 @@ class payer_plugin {
 
 	function payer_plugin() {
 		$this->postapi = new payread_post_api();
-//		$this->baseurl="https://secure.payer.se/PostAPI_V1/pages/helper";
-		$this->baseurl="http://vmware.payer.se:8080/PostAPI_V1/pages/helper";
+		$this->baseurl="https://secure.payer.se/PostAPI_V1/pages/helper";
+//		$this->baseurl="http://vmware.payer.se:8080/PostAPI_V1/pages/helper";
 	}
 	
 	function setBaseUrl($url){
@@ -96,7 +96,7 @@ class payer_plugin {
 			jQuery('input[name=\"streetaddress\"]').val(c.consumer.address);
 			jQuery('input[name=\"zipcode\"]').val(c.consumer.zipcode);
 			jQuery('input[name=\"city\"]').val(c.consumer.city);
-			jQuery('input[name=\"country\"]').val('SE');
+			jQuery('select[name=\"country\"]').val('SE');
 			";
 			$html = "<script type=\"text/javascript\">";
 		}
