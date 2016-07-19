@@ -2,16 +2,16 @@
        PAYER WOOCOMMERCE MODULE
 ***************************************
 
-v1.0.1
+v2.1
 ----------------
 Date: 2016-06-27
 
     Payer <teknik@payer.se>
         Added support for OpenCart version 2.1
 
-v1.0.0
+v2.0
 ----------------
 Date: 2016-06-27
 
     Payer <teknik@payer.se>
-        First release
+        First release with support for OpenCart 2.0

@@ -6,7 +6,7 @@ For more information about our payment services, please visit [www.payer.se](htt
 
 ## Requirements
 
-  * [OpenCart](http://www.opencart.com): Version 2.X
+  * [OpenCart](http://www.opencart.com): Version 2.1
   * [Payer Configuration](https://payer.se) - Missing the configuration file? Contact the [Customer Service](mailto:kundtjanst@payer.se).
 
 ## Installation
