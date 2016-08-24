@@ -7,23 +7,26 @@ For more information about our payment services, please visit [www.payer.se](htt
 ## Requirements
 
   * [OpenCart](http://www.opencart.com): Version 2.1
-  * [Payer Configuration](https://payer.se) - Missing the configuration file? Contact the [Customer Service](mailto:kundtjanst@payer.se).
+  * [Payer Credentials](https://payer.se) - Missing credentials? Contact the [Customer Service](mailto:kundtjanst@payer.se).
 
 ## Installation
 
   1. Place the `admin`, `catalog` and `images` folders in the root of your OpenCart installation.
-  2. From the OpenCart administration page, go to `Extensions`and then `Payment`.
-  3. Install and configure the module.   
+  2. Configure your Payer Credentials. See the `Configuration` section below for more details.
+  3. From the OpenCart administration page, go to `Extensions`and then `Payment`.
+  4. Install and configure the module.
 
 ## Configuration
 
-You need to have your `PayReadConf` file available. Replace that file with the placeholder in the `catalog/controller/payment/payerapi` folder.
+Each module has to be configured correctly with your unique Payer Credentials before it can be used in production. The credentials corresponds to the following parameters:
 
-## Environment
+  * `AGENT ID`
+  * `KEY 1`
+  * `KEY 2`
 
-You can switch between the `test` and `live` environment in the payment method interface through the `Payment Modules` section in OpenCart administration. 
+The key values can be found under the `Settings/Account` section in [Payer Administration](https://secure.payer.se/adminweb/inloggning/inloggning.php).
 
-**Note:** Remember to turn off the test environment before you go in production mode.
+Setup the module by replacing the placeholders in the `PayReadConf.php` file with these values. The configuration file can be found in the `catalog/controller/payment/payerapi` folder in the root of the directory. And that's it!
 
 ## Support
 
