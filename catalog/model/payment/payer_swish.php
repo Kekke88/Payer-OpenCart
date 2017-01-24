@@ -1,11 +1,11 @@
 <?php
 
-class ModelPaymentPayerwywallet extends Model {
+class ModelPaymentPayerswish extends Model {
 
 	public function getMethod($country_id = '', $zone_id = '', $postcode = '') {
-		$this->load->language('payment/payer_wywallet');
+		$this->load->language('payment/payer_swish');
 
-		if ($this->config->get('payer_wywallet_status')) {
+		if ($this->config->get('payer_swish_status')) {
 			// Get Address Data (Model)
 			$address = array();
 			if (method_exists($this->customer, 'getAddress')) {
@@ -26,10 +26,10 @@ class ModelPaymentPayerwywallet extends Model {
 			$country_id = (isset($address['country_id'])) ? $address['country_id'] : 0;
 			$zone_id = (isset($address['zone_id'])) ? $address['zone_id'] : 0;
 			//
-			$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int) $this->config->get('payer_wywallet_geo_zone_id') . "' AND country_id = '" . (int) $country_id . "' AND (zone_id = '" . (int) $zone_id . "' OR zone_id = '0')");
+			$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int) $this->config->get('payer_swish_geo_zone_id') . "' AND country_id = '" . (int) $country_id . "' AND (zone_id = '" . (int) $zone_id . "' OR zone_id = '0')");
 			//
 
-			if (!$this->config->get('payer_wywallet_geo_zone_id')) {
+			if (!$this->config->get('payer_swish_geo_zone_id')) {
 				$status = TRUE;
 			} elseif ($query->num_rows) {
 				$status = TRUE;
@@ -44,10 +44,10 @@ class ModelPaymentPayerwywallet extends Model {
 
 		if ($status) {
 			$method_data = array(
-				'code' => 'payer_wywallet',
+				'code' => 'payer_swish',
 				'title' => $this->language->get('text_title'),
 				'terms' => '',
-				'sort_order' => $this->config->get('payer_wywallet_sort_order')
+				'sort_order' => $this->config->get('payer_swish_sort_order')
 			);
 		}
 

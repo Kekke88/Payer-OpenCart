@@ -1,13 +1,12 @@
 <?php
+class ControllerPaymentPayerswish extends Controller {
 
-class ControllerPaymentPayerall extends Controller {
-
-	public $pname = 'payer_all';
+	public $pname='payer_swish';
 
 	public function index() {
 		require_once(DIR_APPLICATION . "controller/payment/payerapi/payread_post_api.php");
 		$payer = new payread_post_api();
-		$payer->add_payment_method('auto');
+		$payer->add_payment_method('swish');
 		$payer->setClientVersion("opencart_2.0:$this->pname:v1.21");
 
 		$this->load->language("payment/$this->pname");
@@ -81,7 +80,8 @@ class ControllerPaymentPayerall extends Controller {
 			$payer->add_freeform_purchase($i, $extensionItem['title'], $extensionItem['value'], $extensionItem['tax'], 1);
 			$i++;
 		}
-		
+
+
 		$payer->setAgent($this->config->get($this->pname . '_mid'));
 		$payer->setKeyA($this->config->get($this->pname . '_key'));
 		$payer->setKeyB($this->config->get($this->pname . '_keyb'));

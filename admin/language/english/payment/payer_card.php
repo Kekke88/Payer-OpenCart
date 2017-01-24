@@ -1,11 +1,11 @@
 <?php
 // Heading
-$_['heading_title']      = 'Payer - credit card payments';
+$_['heading_title']      = 'Payer Card';
 
 // Text
 $_['text_payment']       = 'Payment';
 $_['text_success']       = 'Success: You have modified the account details!';
-$_['text_edit']          = 'Edit Payer - credit card payments';
+$_['text_edit']          = 'Edit Payer Card';
 $_['text_development']   = '<span style="color: green;">Ready</span>';
 $_['text_payer_card']	 = '<a onclick="window.open(\'http://payer.se\');"><img src="view/image/payment/payer.png" alt="Payer" title="Payer" /><br/></a>';
 

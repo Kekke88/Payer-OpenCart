@@ -1,11 +1,11 @@
 <?php
 // Heading
-$_['heading_title']      = 'Payer - internet bank payments(IBP)';
+$_['heading_title']      = 'Payer Bank';
 
 // Text
 $_['text_payment']       = 'Payment';
 $_['text_success']       = 'Success: You have modified the account details!';
-$_['text_edit']          = 'Edit Payer - internet bank payments(IBP)';
+$_['text_edit']          = 'Edit Payer Bank';
 $_['text_development']   = '<span style="color: green;">Ready</span>';
 $_['text_payer_bank']	 = '<a onclick="window.open(\'http://payer.se\');"><img src="view/image/payment/payer.png" alt="Payer" title="Payer" /><br/></a>';
 

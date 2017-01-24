@@ -1,9 +1,9 @@
 <?php
 
-class ControllerPaymentPayerwywallet extends Controller {
+class ControllerPaymentPayerswish extends Controller {
 
 	private $error = array();
-	private $pname = 'payer_wywallet';
+	private $pname = 'payer_swish';
 
 	public function index() {
 		$this->load->language("payment/$this->pname");
@@ -122,7 +122,7 @@ class ControllerPaymentPayerwywallet extends Controller {
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['fooer'] = $this->load->controller('common/footer');
 
-		$this->response->setOutput($this->load->view('payment/payer_wywallet.tpl', $data));
+		$this->response->setOutput($this->load->view('payment/payer_swish.tpl', $data));
 	}
 
 	private function validate() {

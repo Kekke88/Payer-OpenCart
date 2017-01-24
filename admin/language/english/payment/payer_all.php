@@ -1,11 +1,11 @@
 <?php
 // Heading
-$_['heading_title']      = 'Payer - all payment methods';
+$_['heading_title']      = 'Payer Checkout';
 
 // Text
 $_['text_payment']       = 'Payment';
 $_['text_success']       = 'Success: You have modified the account details!';
-$_['text_edit']          = 'Edit Payer - all payment methods';
+$_['text_edit']          = 'Edit Payer Checkout';
 $_['text_development']   = '<span style="color: green;">Ready</span>';
 $_['text_payer_all']	 = '<a onclick="window.open(\'http://payer.se\');"><img src="view/image/payment/payer.png" alt="Payer" title="Payer" /><br/></a>';
 

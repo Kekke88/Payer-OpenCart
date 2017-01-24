@@ -1,13 +1,13 @@
 <?php
 // Heading
-$_['heading_title']      = 'Payer Invoice';
+$_['heading_title']      = 'Payer Swish';
 
 // Text
 $_['text_payment']       = 'Payment';
 $_['text_success']       = 'Success: You have modified the account details!';
-$_['text_edit']          = 'Edit Payer Invoice';
+$_['text_edit']          = 'Edit Payer Swish';
 $_['text_development']   = '<span style="color: green;">Ready</span>';
-$_['text_payer_invoice'] = '<a onclick="window.open(\'http://payer.se\');"><img src="view/image/payment/payer.png" alt="Payer" title="Payer" /><br/></a>';
+$_['text_payer_swish']	 = '<a onclick="window.open(\'http://payer.se\');"><img src="view/image/payment/payer.png" alt="Payer" title="Payer" /><br/></a>';
 
 // Entry
 $_['entry_status']       = 'Status:';

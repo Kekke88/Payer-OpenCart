@@ -23,11 +23,31 @@ class ControllerPaymentPayerinvoice extends Controller {
 		$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 		$order_totals = $this->model_extension_extension->getExtensions('total');
 
-		if (array_key_exists('coupon', $this->session->data)) {
-			$coupon_info = $this->model_checkout_coupon->getCoupon($this->session->data['coupon']);
+		$total_data = array();
+		$payer_taxes = array();
+		$total = 0;
+		foreach ($order_totals as $result) {
+			if ($this->config->get($result['code'] . '_status')) {
+				$this->load->model('total/' . $result['code']);
+				$taxes = array();
+				$this->{'model_total_' . $result['code']}->getTotal($total_data, $total, $taxes);
+				$amount = 0;
+
+				foreach ($taxes as $tax_id => $value) {
+					$amount += $value;
+				}
+				$payer_taxes[$result['code']] = $amount;
+			}
 		}
-		if (array_key_exists('voucher', $this->session->data)) {
-			$voucher_info = $this->model_checkout_voucher->getVoucher($this->session->data['voucher']);
+		$extensionItems = array();
+		foreach($total_data as $extensionItem){
+			if($extensionItem['code'] != 'total' && $extensionItem['code'] != 'sub_total' && $extensionItem['code'] != 'tax') {
+				$extensionItem['tax'] = abs($payer_taxes[$extensionItem['code']] / $extensionItem['value'] * 100);
+				if($extensionItem['tax']>0){
+					$extensionItem['value'] = $extensionItem['value']+$payer_taxes[$extensionItem['code']];
+				}
+				array_push($extensionItems, $extensionItem);
+			}
 		}
 
 		// Check for supported language, otherwise convert to default.
@@ -43,9 +63,6 @@ class ControllerPaymentPayerinvoice extends Controller {
 
 		$payer->add_buyer_info($order_info['firstname'], $order_info['lastname'], $order_info['payment_address_1'], $order_info['payment_address_2'], $order_info['payment_postcode'], $order_info['payment_city'], $order_info['payment_iso_code_2'], $order_info['telephone'], '', /* phone work */ '', /* phone mobile */ $order_info['email'], '', /* organisation */ '', /* theOrgNr */ $order_info['customer_id'], $order_info['order_id'], '' /* theOptions */);
 
-		$this->load->model('total/coupon');
-		$this->load->model('total/voucher');
-
 		$i = 1;
 		$totalPrice = 0;
 		foreach ($this->cart->getProducts() as $product) {
@@ -59,30 +76,8 @@ class ControllerPaymentPayerinvoice extends Controller {
 			$totalPrice += ($product['price'] + $taxsum)*$product['quantity'];
 			$i++;
 		}
-		if (array_key_exists('shipping_method', $this->session->data)) {
-
-			$netcost = $this->session->data['shipping_method']['cost'];
-			$taxes = $this->tax->getRates($netcost, $this->session->data['shipping_method']['tax_class_id']);
-
-			$taxsum = 0;
-			foreach ($taxes as $tax) {
-				$taxsum += $tax['amount'];
-			}
-			$brutto = $netcost + $taxsum;
-			$taxprc = $this->session->data['shipping_method']['cost'] == 0 ? 0 : 100 * $taxsum / $netcost;
-			$payer->add_freeform_purchase($i, $this->session->data['shipping_method']['title'], $brutto, $taxprc, 1);
-			$i++;
-		}
-		if (isset($coupon_info)) {
-			if ($coupon_info['type'] == 'P') {
-				$payer->add_freeform_purchase($i, $coupon_info['name'], '-' . $totalPrice * ($coupon_info['discount'] / 100), 25, 1);
-			} else {
-				$payer->add_freeform_purchase($i, $coupon_info['name'], '-' . $coupon_info['total'], 25, 1);
-			}
-			$i++;
-		}
-		if (array_key_exists('voucher', $this->session->data)) {
-			$payer->add_freeform_purchase($i, $voucher_info['code'], '-' . $voucher_info['amount'], 25, 1);
+		foreach($extensionItems as $extensionItem){
+			$payer->add_freeform_purchase($i, $extensionItem['title'], $extensionItem['value'], $extensionItem['tax'], 1);
 			$i++;
 		}
 
@@ -147,7 +142,7 @@ class ControllerPaymentPayerinvoice extends Controller {
 		$payer->setKeyA($this->config->get("$this->pname" . "_key"));
 		$payer->setKeyB($this->config->get("$this->pname" . "_keyb"));
 
-		$types = array("card" => "Kortbetalning", "bank" => "Direktbanksbetalning", "invoice" => "Faktura", "sms" => "SMS-betalning", "phone" => "Telefonbetalning", "enter" => "Delbetalning", "wywallet" => "WyWallet");
+		$types = array("card" => "Kortbetalning", "bank" => "Direktbanksbetalning", "invoice" => "Faktura", "einvoice" => "E-Faktura", "sms" => "SMS-betalning", "phone" => "Telefonbetalning", "enter" => "Installment", "swish" => "Swish");
 
 		if ($payer->is_valid_ip()) {
 			if ($payer->is_valid_callback()) {
@@ -157,23 +152,26 @@ class ControllerPaymentPayerinvoice extends Controller {
 				if ($_GET['payer_callback_type'] == "settle") {
 					$payread_payment_id = $_GET["payread_payment_id"];
 					$payer_payment_type = $types[$_GET["payer_payment_type"]];
-					if ($payer_payment_type == "")
+					if ($payer_payment_type == "") {
 						$payer_payment_type = "Payment";
-
+					}
 					if ($_GET['payer_payment_type'] == "bank") {
-						$paymenttype = 'Payer - Bank';
+						$paymenttype = 'Payer Bank';
 					}
-					if ($_GET['payer_payment_type'] == "card") {
-						$paymenttype = 'Payer - Card';
+					elseif ($_GET['payer_payment_type'] == "card") {
+						$paymenttype = 'Payer Card';
 					}
-					if ($_GET['payer_payment_type'] == "invoice") {
-						$paymenttype = 'Payer - Invoice';
+					elseif ($_GET['payer_payment_type'] == "invoice") {
+						$paymenttype = 'Payer Invoice';
 					}
-					if ($_GET['payer_payment_type'] == "enter") {
-						$paymenttype = 'Payer - Delbetalning';
+					elseif ($_GET['payer_payment_type'] == "einvoice") {
+						$paymenttype = 'Payer EInvoice';
 					}
-					if ($_GET['payer_payment_type'] == "wywallet") {
-						$paymenttype = 'Payer - WyWallet';
+					elseif ($_GET['payer_payment_type'] == "enter") {
+						$paymenttype = 'Payer Installment';
+					}
+					elseif ($_GET['payer_payment_type'] == "swish") {
+						$paymenttype = 'Payer Swish';
 					}
 					if ($_GET['payer_added_fee'] != "0") {
 						$tax = ($_GET['payer_added_fee'] * 0.2);

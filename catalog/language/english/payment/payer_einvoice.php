@@ -1,7 +1,7 @@
 <?php
 
 // Text
-$_['text_title'] = '<img src="' . HTTP_SERVER . 'image/p_wywallet.png" align="middle" /><script src="catalog/view/javascript/p.js"></script>';
+$_['text_title'] = '<img src="' . HTTP_SERVER . 'image/p_einvoice.png" align="middle" /><script src="catalog/view/javascript/p.js"></script>';
 $_['text_testmode'] = 'ATTENTION!!! The Payment Gateway is in \'Test Mode\'. Your credit card will not be charged.';
 
 // Error
