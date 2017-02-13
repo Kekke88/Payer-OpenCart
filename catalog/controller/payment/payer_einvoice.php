@@ -42,7 +42,7 @@ class ControllerPaymentPayereinvoice extends Controller {
 		$extensionItems = array();
 		foreach($total_data as $extensionItem){
 			if($extensionItem['code'] != 'total' && $extensionItem['code'] != 'sub_total' && $extensionItem['code'] != 'tax') {
-				$extensionItem['tax'] = abs($payer_taxes[$extensionItem['code']] / $extensionItem['value'] * 100);
+				$extensionItem['tax'] = ($extensionItem['value'] > 0 ? $payer_taxes[$extensionItem['code']] / $extensionItem['value'] * 100 : 0);
 				if($extensionItem['tax']>0){
 					$extensionItem['value'] = $extensionItem['value']+$payer_taxes[$extensionItem['code']];
 				}
