@@ -1,20 +1,20 @@
 <?php
 
-class ControllerPaymentPayerall extends Controller {
+class ControllerExtensionPaymentPayerall extends Controller {
 
 	private $error = array();
 	private $pname = 'payer_all';
 
 	public function index() {
-		$this->load->language("payment/$this->pname");
+		$this->load->language("extension/payment/$this->pname");
 
 		$this->document->setTitle($this->language->get('heading_title'));
 		$this->load->model('setting/setting');
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
-			$this->model_setting_setting->editSetting($this->pname, $this->request->post);
+			$this->model_setting_setting->editSetting('payment_' . $this->pname, $this->request->post);
 			$this->session->data['success'] = $this->language->get('text_success');
-			$this->response->redirect($this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL'));
+			$this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true));
 		}
 		$data['heading_title'] = $this->language->get('heading_title');
 
@@ -54,40 +54,47 @@ class ControllerPaymentPayerall extends Controller {
 		} else {
 			$data['error_warning'] = '';
 		}
+		
 		if (isset($this->error['mid'])) {
 			$data['error_mid'] = $this->error['mid'];
 		} else {
-			$data['error_warning'] = '';
+			$data['error_mid'] = '';
 		}
+
 		if (isset($this->error['key'])) {
 			$data['error_key'] = $this->error['key'];
+		} else {
+			$data['error_key'] = '';
 		}
+
 		if (isset($this->error['keyb'])) {
 			$data['error_keyb'] = $this->error['keyb'];
+		} else {
+			$data['error_keyb'] = '';
 		}
 
 		$data['breadcrumbs'] = array();
 
 		$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('text_home'),
-			'href' => $this->url->link('common/home', 'token=' . $this->session->data['token'], 'SSL'),
+			'href' => $this->url->link('common/home', 'user_token=' . $this->session->data['user_token'], true),
 			'separator' => false
 		);
 
 		$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('text_payment'),
-			'href' => $this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL'),
+			'href' => $this->url->link('extension/payment', 'user_token=' . $this->session->data['user_token'], true),
 			'separator' => ' :: '
 		);
 
 		$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('heading_title'),
-			'href' => $this->url->link("payment/$this->pname", 'token=' . $this->session->data['token'], 'SSL'),
+			'href' => $this->url->link("extension/payment/$this->pname", 'user_token=' . $this->session->data['user_token'], true),
 			'separator' => ' :: '
 		);
 
-		$data['action'] = $this->url->link("payment/$this->pname", 'token=' . $this->session->data['token'], 'SSL');
-		$data['cancel'] = $this->url->link("extension/payment", 'token=' . $this->session->data['token'], 'SSL');
+		$data['action'] = $this->url->link("extension/payment/$this->pname", 'user_token=' . $this->session->data['user_token'], true);
+		$data['cancel'] = $this->url->link("extension/payment", 'user_token=' . $this->session->data['user_token'], true);
 
 		foreach (array("status", "geo_zone_id", "order_status_id") as $name) {
 			$key = $this->pname . "_" . $name;
@@ -102,7 +109,7 @@ class ControllerPaymentPayerall extends Controller {
 
 		$data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
 
-		$settings = $this->model_setting_setting->getSetting($this->pname);
+		$settings = $this->model_setting_setting->getSetting('payment_' . $this->pname);
 
 		foreach ($settings as $key => $value) {
 			if (isset($this->request->post[$key])) {
@@ -117,36 +124,32 @@ class ControllerPaymentPayerall extends Controller {
 		$data['geo_zones'] = $this->model_localisation_geo_zone->getGeoZones();
 
 		$this->id = 'content';
-		$this->template = "payment/" . $this->pname . ".tpl";
+		$this->template = "extension/payment/" . $this->pname;
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['fooer'] = $this->load->controller('common/footer');
 
-		$this->response->setOutput($this->load->view('payment/payer_all.tpl', $data));
+		$this->response->setOutput($this->load->view('extension/payment/payer_all', $data));
 	}
 
 	private function validate() {
-		if (!$this->user->hasPermission('modify', "payment/$this->pname")) {
+		if (!$this->user->hasPermission('modify', "extension/payment/payer_all")) {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!$this->request->post[$this->pname . '_mid']) {
+		if (!$this->request->post['payment_payer_all_mid']) {
 			$this->error['mid'] = $this->language->get('error_mid');
 		}
 
-		if (!$this->request->post[$this->pname . '_key']) {
+		if (!$this->request->post['payment_payer_all_key']) {
 			$this->error['key'] = $this->language->get('error_key');
 		}
 
-		if (!$this->request->post[$this->pname . '_keyb']) {
+		if (!$this->request->post['payment_payer_all_keyb']) {
 			$this->error['keyb'] = $this->language->get('error_keyb');
 		}
 
-		if (!$this->error) {
-			return true;
-		} else {
-			return false;
-		}
+		return !$this->error;
 	}
 
 }
