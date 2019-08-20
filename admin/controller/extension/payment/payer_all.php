@@ -129,23 +129,23 @@ class ControllerExtensionPaymentPayerall extends Controller {
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['fooer'] = $this->load->controller('common/footer');
 
-		$this->response->setOutput($this->load->view('extension/payment/payer_all', $data));
+		$this->response->setOutput($this->load->view('extension/payment/' . $this->pname, $data));
 	}
 
 	private function validate() {
-		if (!$this->user->hasPermission('modify', "extension/payment/payer_all")) {
+		if (!$this->user->hasPermission('modify', "extension/payment/" . $this->pname)) {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!$this->request->post['payment_payer_all_mid']) {
+		if (!$this->request->post['payment_' . $this->pname . '_mid']) {
 			$this->error['mid'] = $this->language->get('error_mid');
 		}
 
-		if (!$this->request->post['payment_payer_all_key']) {
+		if (!$this->request->post['payment_' . $this->pname . '_key']) {
 			$this->error['key'] = $this->language->get('error_key');
 		}
 
-		if (!$this->request->post['payment_payer_all_keyb']) {
+		if (!$this->request->post['payment_' . $this->pname . '_keyb']) {
 			$this->error['keyb'] = $this->language->get('error_keyb');
 		}
 

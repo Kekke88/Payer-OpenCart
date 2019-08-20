@@ -1,11 +1,11 @@
 <?php
 
-class ModelPaymentPayercard extends Model {
+class ModelExtensionPaymentPayerenter extends Model {
 
 	public function getMethod($country_id = '', $zone_id = '', $postcode = '') {
-		$this->load->language('payment/payer_card');
+		$this->load->language('extension/payment/payer_enter');
 
-		if ($this->config->get('payer_card_status')) {
+		if ($this->config->get('payment_payer_enter_status')) {
 			// Get Address Data (Model)
 			$address = array();
 			if (method_exists($this->customer, 'getAddress')) {
@@ -26,10 +26,10 @@ class ModelPaymentPayercard extends Model {
 			$country_id = (isset($address['country_id'])) ? $address['country_id'] : 0;
 			$zone_id = (isset($address['zone_id'])) ? $address['zone_id'] : 0;
 			//
-			$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int) $this->config->get('payer_card_geo_zone_id') . "' AND country_id = '" . (int) $country_id . "' AND (zone_id = '" . (int) $zone_id . "' OR zone_id = '0')");
+			$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int) $this->config->get('payment_payer_enter_geo_zone_id') . "' AND country_id = '" . (int) $country_id . "' AND (zone_id = '" . (int) $zone_id . "' OR zone_id = '0')");
 			//
 
-			if (!$this->config->get('payer_card_geo_zone_id')) {
+			if (!$this->config->get('payment_payer_enter_geo_zone_id')) {
 				$status = TRUE;
 			} elseif ($query->num_rows) {
 				$status = TRUE;
@@ -44,10 +44,10 @@ class ModelPaymentPayercard extends Model {
 
 		if ($status) {
 			$method_data = array(
-				'code' => 'payer_card',
+				'code' => 'payer_enter',
 				'title' => $this->language->get('text_title'),
 				'terms' => '',
-				'sort_order' => $this->config->get('payer_card_sort_order')
+				'sort_order' => $this->config->get('payment_payer_enter_sort_order')
 			);
 		}
 

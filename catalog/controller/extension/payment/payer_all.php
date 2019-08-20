@@ -1,11 +1,11 @@
 <?php
 
-class ControllerPaymentPayerall extends Controller {
+class ControllerExtensionPaymentPayerall extends Controller {
 
 	public $pname = 'payer_all';
 
 	public function index() {
-		require_once(DIR_APPLICATION . "controller/payment/payerapi/payread_post_api.php");
+		require_once(DIR_APPLICATION . "controller/extension/payment/payerapi/payread_post_api.php");
 		$payer = new payread_post_api();
 		$payer->add_payment_method('auto');
 		$payer->setClientVersion("opencart_2.0:$this->pname:v1.21");
@@ -19,10 +19,10 @@ class ControllerPaymentPayerall extends Controller {
 		$data['fields'] = array();
 
 		$this->load->model('checkout/order');
-		$this->load->model('extension/extension');
+		$this->load->model('setting/extension');
 
 		$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
-		$order_totals = $this->model_extension_extension->getExtensions('total');
+		$order_totals = $this->model_setting_extension->getExtensions('total');
 
 		$total_data = array();
 		$payer_taxes = array();
@@ -109,11 +109,7 @@ class ControllerPaymentPayerall extends Controller {
 
 		$this->id = 'payment';
 
-		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . "/template/payment/" . $this->pname . ".tpl")) {
-			return $this->load->view($this->config->get('config_template') . '/template/payment/' . $this->pname . '.tpl', $data);
-		} else {
-			return $this->load->view('default/template/payment/' . $this->pname . '.tpl', $data);
-		}
+		return $this->load->view('extension/payment/' . $this->pname, $data);
 	}
 
 	public function confirm() {
