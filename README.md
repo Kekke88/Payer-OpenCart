@@ -1,4 +1,6 @@
-# Payer OpenCart Module
+# Payer OpenCart Module 3.0 migration
+
+A module migration from Opencart 2.1 to Opencart 3.0
 
 This is the payment module to get started with Payers payment services in OpenCart.
 
@@ -6,7 +8,7 @@ For more information about our payment services, please visit [www.payer.se](htt
 
 ## Requirements
 
-  * [OpenCart](http://www.opencart.com): Version 2.1
+  * [OpenCart](http://www.opencart.com): Version 3.0
   * [Payer Credentials](https://payer.se) - Missing credentials? Contact the [Customer Service](mailto:kundtjanst@payer.se).
 
 ## Installation
@@ -31,3 +33,5 @@ Setup the module by replacing the placeholders in the `PayReadConf.php` file wit
 ## Support
 
 For questions regarding your payment module integration, please contact the Payer [Technican Support](mailto:teknik@payer.se). 
+
+For questions regarding the 3.0 migration please open an issue or contact [Henric Johansson](mailto:henric@vallagruppen.com).
