@@ -1,6 +1,4 @@
-# Payer OpenCart Module 3.0 migration
-
-A module migration from Opencart 2.1 to Opencart 3.0
+# Payer OpenCart Module 3.0
 
 This is the payment module to get started with Payers payment services in OpenCart.
 
