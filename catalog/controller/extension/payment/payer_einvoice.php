@@ -10,7 +10,7 @@ class ControllerExtensionPaymentPayereinvoice extends Controller {
 		$payer->add_payment_method('einvoice');
 		$payer->setClientVersion("opencart_2.0:$this->pname:v1.21");
 
-		$this->load->language("payment/$this->pname");
+		$this->load->language("extension/payment/$this->pname");
 		$data['button_confirm'] = $this->language->get('button_confirm');
 		$data['error'] = (isset($this->session->data['error'])) ? $this->session->data['error'] : NULL;
 		unset($this->session->data['error']);
@@ -24,14 +24,23 @@ class ControllerExtensionPaymentPayereinvoice extends Controller {
 		$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 		$order_totals = $this->model_setting_extension->getExtensions('total');
 
-		$total_data = array();
-		$payer_taxes = array();
+		$totals = array();
+		$taxes = $this->cart->getTaxes();
 		$total = 0;
+
+		// Because __call can not keep var references so we put them into an array.
+		$total_data = array(
+			'totals' => &$totals,
+			'taxes'  => &$taxes,
+			'total'  => &$total
+		);
+
+		$payer_taxes = array();
 		foreach ($order_totals as $result) {
-			if ($this->config->get($result['code'] . '_status')) {
-				$this->load->model('total/' . $result['code']);
+			if ($this->config->get('total_' . $result['code'] . '_status')) {
+				$this->load->model('extension/total/' . $result['code']);
 				$taxes = array();
-				$this->{'model_total_' . $result['code']}->getTotal($total_data, $total, $taxes);
+				$this->{'model_extension_total_' . $result['code']}->getTotal($total_data);
 				$amount = 0;
 
 				foreach ($taxes as $tax_id => $value) {
@@ -41,7 +50,7 @@ class ControllerExtensionPaymentPayereinvoice extends Controller {
 			}
 		}
 		$extensionItems = array();
-		foreach($total_data as $extensionItem){
+		foreach($totals as $extensionItem){
 			if($extensionItem['code'] != 'total' && $extensionItem['code'] != 'sub_total' && $extensionItem['code'] != 'tax') {
 				$extensionItem['tax'] = ($extensionItem['value'] > 0 ? $payer_taxes[$extensionItem['code']] / $extensionItem['value'] * 100 : 0);
 				if($extensionItem['tax']>0){
@@ -81,22 +90,22 @@ class ControllerExtensionPaymentPayereinvoice extends Controller {
 			$payer->add_freeform_purchase($i, $extensionItem['title'], $extensionItem['value'], $extensionItem['tax'], 1);
 			$i++;
 		}
-		
-		$payer->setAgent($this->config->get($this->pname . '_mid'));
-		$payer->setKeyA($this->config->get($this->pname . '_key'));
-		$payer->setKeyB($this->config->get($this->pname . '_keyb'));
+
+		$payer->setAgent($this->config->get('payment_' . $this->pname . '_mid'));
+		$payer->setKeyA($this->config->get('payment_' . $this->pname . '_key'));
+		$payer->setKeyB($this->config->get('payment_' . $this->pname . '_keyb'));
 
 		$payer->set_language($lang);
 		$payer->set_currency($order_info['currency_code']);
-		$payer->set_test_mode($this->config->get($this->pname . '_test') == '1');
+		$payer->set_test_mode($this->config->get('payment_' . $this->pname . '_test') == '1');
 		$payer->set_reference_id($ref);
 
 		$payer->set_success_redirect_url(HTTPS_SERVER . 'index.php?route=checkout/success');
-		$payer->set_authorize_notification_url(HTTPS_SERVER . 'index.php?route=payment/' . $this->pname . '/callback&mode=auth&order_id=' . $order_info['order_id']);
-		$payer->set_settle_notification_url(HTTPS_SERVER . 'index.php?route=payment/' . $this->pname . '/callback&mode=settle&order_id=' . $order_info['order_id']);
+		$payer->set_authorize_notification_url(HTTPS_SERVER . 'index.php?route=extension/payment/' . $this->pname . '/callback&mode=auth&order_id=' . $order_info['order_id']);
+		$payer->set_settle_notification_url(HTTPS_SERVER . 'index.php?route=extension/payment/' . $this->pname . '/callback&mode=settle&order_id=' . $order_info['order_id']);
 		$payer->set_redirect_back_to_shop_url(HTTPS_SERVER . 'index.php?route=checkout/checkout');
 
-		if ($this->config->get($this->pname . '_debug')) {
+		if ($this->config->get('payment_' . $this->pname . '_debug')) {
 			$payer->set_debug_mode("verbose");
 		}
 
@@ -117,7 +126,7 @@ class ControllerExtensionPaymentPayereinvoice extends Controller {
 	}
 
 	public function callback() {
-		$this->load->language("payment/$this->pname");
+		$this->load->language("extension/payment/$this->pname");
 		$this->load->model('checkout/order');
 
 		$oid = $order_id = $this->request->get['order_id'];
@@ -130,13 +139,13 @@ class ControllerExtensionPaymentPayereinvoice extends Controller {
 		}
 
 		// If we get a successful response back...
-		require_once(DIR_APPLICATION . "controller/payment/payerapi/payread_post_api.php");
+		require_once(DIR_APPLICATION . "controller/extension/payment/payerapi/payread_post_api.php");
 
 		$payer = new payread_post_api();
 
-		$payer->setAgent($this->config->get("$this->pname" . "_mid"));
-		$payer->setKeyA($this->config->get("$this->pname" . "_key"));
-		$payer->setKeyB($this->config->get("$this->pname" . "_keyb"));
+		$payer->setAgent($this->config->get('payment_' . "$this->pname" . "_mid"));
+		$payer->setKeyA($this->config->get('payment_' . "$this->pname" . "_key"));
+		$payer->setKeyB($this->config->get('payment_' . "$this->pname" . "_keyb"));
 
 		$types = array("card" => "Kortbetalning", "bank" => "Direktbanksbetalning", "invoice" => "Faktura", "einvoice" => "E-Faktura", "sms" => "SMS-betalning", "phone" => "Telefonbetalning", "enter" => "Installment", "swish" => "Swish");
 
@@ -177,7 +186,7 @@ class ControllerExtensionPaymentPayereinvoice extends Controller {
 						$this->db->query("UPDATE `" . DB_PREFIX . "order_total` SET value = value+" . $tax . ", text = (SELECT CONCAT(symbol_left,FORMAT(`" . DB_PREFIX . "order_total`.value,2),symbol_right) FROM `" . DB_PREFIX . "currency` WHERE code = (SELECT currency_code FROM `" . DB_PREFIX . "order` WHERE order_id = '" . (int) $order_id . "')) WHERE order_id = '" . (int) $order_id . "' AND code = 'tax'");
 						$this->db->query("UPDATE `" . DB_PREFIX . "order_total` SET value = value+" . $_GET['payer_added_fee'] . ", text = (SELECT CONCAT(symbol_left,FORMAT(`" . DB_PREFIX . "order_total`.value,2),symbol_right) FROM `" . DB_PREFIX . "currency` WHERE code = (SELECT currency_code FROM `" . DB_PREFIX . "order` WHERE order_id = '" . (int) $order_id . "')) WHERE order_id = '" . (int) $order_id . "' AND code = 'total'");
 					}
-					$this->model_checkout_order->addOrderHistory($order_info['order_id'], $this->config->get($this->pname . '_order_status_id'), "$payer_payment_type via Payer. PaymentID:" . $payread_payment_id, true);
+					$this->model_checkout_order->addOrderHistory($order_info['order_id'], $this->config->get('payment_' . $this->pname . '_order_status_id'), "$payer_payment_type via Payer. PaymentID:" . $payread_payment_id, true);
 					$this->db->query("UPDATE `" . DB_PREFIX . "order` SET payment_method = '" . $this->db->escape($paymenttype) . "', date_modified = NOW() WHERE order_id = '" . (int) $order_id . "'");
 					die("TRUE:SETTLE:ORDER:$oid");
 				}
