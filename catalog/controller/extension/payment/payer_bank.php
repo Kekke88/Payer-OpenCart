@@ -71,7 +71,7 @@ class ControllerExtensionPaymentPayerbank extends Controller {
 		$ts = date('YmdHis');
 		$ref = "ID-" . $order_info['order_id'] . "-$ts";
 
-		$payer->add_buyer_info($order_info['firstname'], $order_info['lastname'], $order_info['payment_address_1'], $order_info['payment_address_2'], $order_info['payment_postcode'], $order_info['payment_city'], $order_info['payment_iso_code_2'], $order_info['telephone'], '', /* phone work */ '', /* phone mobile */ $order_info['email'], '', /* organisation */ '', /* theOrgNr */ $order_info['customer_id'], $order_info['order_id'], '' /* theOptions */);
+		$payer->add_buyer_info($order_info['firstname'], $order_info['lastname'], $order_info['payment_address_1'], $order_info['payment_address_2'], $order_info['payment_postcode'], $order_info['payment_city'], $order_info['payment_iso_code_2'], $order_info['telephone'], '', /* phone work */ $order_info['telephone'], /* phone mobile */ $order_info['email'], '', /* organisation */ '', /* theOrgNr */ $order_info['customer_id'], $order_info['order_id'], '' /* theOptions */);
 
 		$i = 1;
 		$totalPrice = 0;
