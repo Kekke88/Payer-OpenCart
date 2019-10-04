@@ -40,7 +40,7 @@ class ControllerExtensionPaymentPayereinvoice extends Controller {
 			if ($this->config->get('total_' . $result['code'] . '_status')) {
 				$this->load->model('extension/total/' . $result['code']);
 				$taxes = array();
-				$this->{'model_extension_total_' . $result['code']}->getTotal($total_data);
+				//$this->{'model_extension_total_' . $result['code']}->getTotal($total_data);
 				$amount = 0;
 
 				foreach ($taxes as $tax_id => $value) {
