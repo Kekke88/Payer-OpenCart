@@ -24,45 +24,33 @@ class ControllerExtensionPaymentPayercard extends Controller {
 		$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 		$order_totals = $this->model_setting_extension->getExtensions('total');
 
-		$totals = array();
-		$taxes = $this->cart->getTaxes();
-		$total = 0;
-
-		// Because __call can not keep var references so we put them into an array.
-		$total_data = array(
-			'totals' => &$totals,
-			'taxes'  => &$taxes,
-			'total'  => &$total
-		);
-
-		$payer_taxes = array();
-		foreach ($order_totals as $result) {
-			if ($this->config->get('total_' . $result['code'] . '_status')) {
-				$this->load->model('extension/total/' . $result['code']);
-				$taxes = array();
-				
-				// Reset taxes
-				foreach($taxes as $tax_id => $value) {
-					$taxes[$tax_id] = 0;
-				}
-
-				$this->{'model_extension_total_' . $result['code']}->getTotal($total_data);
-				$amount = 0;
-
-				foreach ($taxes as $tax_id => $value) {
-					$amount += $value;
-				}
-				$payer_taxes[$result['code']] = $amount;
-			}
-		}
-		$extensionItems = array();
-		foreach($totals as $extensionItem){
-			if($extensionItem['code'] != 'total' && $extensionItem['code'] != 'sub_total' && $extensionItem['code'] != 'tax') {
-				$extensionItem['tax'] = ($extensionItem['value'] > 0 ? $payer_taxes[$extensionItem['code']] / $extensionItem['value'] * 100 : 0);
-				if($extensionItem['tax']>0){
-					$extensionItem['value'] = $extensionItem['value']+$payer_taxes[$extensionItem['code']];
-				}
-				array_push($extensionItems, $extensionItem);
+		$i = 1;
+		$order_total_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_total WHERE order_id = '" . (int)$this->session->data['order_id'] . "' AND code NOT IN ('total','tax') ORDER BY sort_order");
+		foreach ($order_total_query->rows as $total) {
+			if ($total['code']=='sub_total') {
+				// ADD THE INDIVIDUAL PRODUCTS FROM FROM DATABASE
+				$order_product_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_product WHERE order_id = '" . (int)$this->session->data['order_id'] . "' and quantity > 0");
+				foreach ($order_product_query->rows as $order_product) {
+					$qty = $order_product['quantity'] == 0 ? 1 : $order_product['quantity'];
+					$taxprc = $order_product['total']==0 ? 0 : 100.0*$order_product['tax']/$order_product['total'];
+					$payer->add_freeform_purchase(
+							$i++,//LineNumber
+							$order_product['name'],
+							round(($order_product['total']+$order_product['tax'])/$qty, 2),
+							round($taxprc, 0), // VAT%(moms%)
+							$qty
+					);
+				}				
+			} else {
+				// ADD THE OTHER LINES AND CALCULATE VAT
+				$addVAT=25.0;
+				$payer->add_freeform_purchase(
+						$i++,//LineNumber
+						$total['title'],
+						round($total['value']*(100.0+$addVAT)/100.0, 2),
+						$addVAT, // VAT%(moms%)
+						1 // QTY
+				);
 			}
 		}
 
@@ -78,24 +66,6 @@ class ControllerExtensionPaymentPayercard extends Controller {
 		$ref = "ID-" . $order_info['order_id'] . "-$ts";
 
 		$payer->add_buyer_info($order_info['firstname'], $order_info['lastname'], $order_info['payment_address_1'], $order_info['payment_address_2'], $order_info['payment_postcode'], $order_info['payment_city'], $order_info['payment_iso_code_2'], $order_info['telephone'], '', /* phone work */ $order_info['telephone'], /* phone mobile */ $order_info['email'], '', /* organisation */ '', /* theOrgNr */ $order_info['customer_id'], $order_info['order_id'], '' /* theOptions */);
-
-		$i = 1;
-		$totalPrice = 0;
-		foreach ($this->cart->getProducts() as $product) {
-			$taxes = $this->tax->getRates($product['price'], $product['tax_class_id']);
-			$taxsum = 0;
-			foreach ($taxes as $tax) {
-				$taxsum += $tax['amount'];
-			}
-			$taxprc = $product['price'] == 0 ? 0 : 100 * $taxsum / $product['price'];
-			$payer->add_freeform_purchase($i, $product['name'], $product['price'] + $taxsum, $taxprc, $product['quantity']);
-			$totalPrice += ($product['price'] + $taxsum)*$product['quantity'];
-			$i++;
-		}
-		foreach($extensionItems as $extensionItem){
-			$payer->add_freeform_purchase($i, $extensionItem['title'], $extensionItem['value'], $extensionItem['tax'], 1);
-			$i++;
-		}
 
 		$payer->setAgent($this->config->get('payment_' . $this->pname . '_mid'));
 		$payer->setKeyA($this->config->get('payment_' . $this->pname . '_key'));
